@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rudeus Closer X</title>
+    <style>
+        /* COULEURS Better Stack */
+        :root {
+            --primary: #6e45e2;  /* Violet */
+            --secondary: #88d3ce; /* Turquoise */
+            --accent: #ff7e5f;   /* Orange */
+            --dark: #2a2d3e;     /* Fond sombre */
+            --light: #f9f9f9;    /* Fond clair */
+        }
+
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s, transform 0.8s;
+        }
+
+        .hero.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #main-title {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .profile-pic {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(110, 69, 226, 0.3);
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 15px 35px rgba(110, 69, 226, 0.4);
+        }
+
+        /* TOOLS GRID */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .tool-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px) !important;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .tool-card p {
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+
+        /* BOUTONS */
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 8px rgba(110, 69, 226, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(255, 126, 95, 0.3);
+        }
+
+        /* RÉSEAUX SOCIAUX */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .social-link i {
+            font-size: 1.2rem;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .whatsapp { color: #25D366; background: rgba(37, 211, 102, 0.1); }
+        .facebook { color: #1877F2; background: rgba(24, 119, 242, 0.1); }
+        .instagram { color: #E1306C; background: rgba(225, 48, 108, 0.1); }
+        .telegram { color: #0088cc; background: rgba(0, 136, 204, 0.1); }
+
+        .whatsapp:hover { background: rgba(37, 211, 102, 0.2); }
+        .facebook:hover { background: rgba(24, 119, 242, 0.2); }
+        .instagram:hover { background: rgba(225, 48, 108, 0.2); }
+        .telegram:hover { background: rgba(0, 136, 204, 0.2); }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--dark);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            position: relative;
+            display: inline-block;
+        }
+
+        .text-part {
+            display: inline-block;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            filter: blur(5px);
+        }
+
+        .emoji {
+            display: inline-block;
+            font-size: 2rem;
+            opacity: 0;
+            transform: scale(0) rotate(0deg);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* ANIMATIONS */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            #main-title {
+                font-size: 2rem;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-text {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1 id="main-title">mes travaux</h1>
+            <img src="https://i.supaimg.com/67a0c4e0-1f01-4711-9902-69d954cdae90.jpg" alt="Clever" class="profile-pic">
+        </div>
+        
+        <div class="tools-grid">
+            <div class="tool-card">
+                <h3>Calculatrice interactive</h3>
+                <p>Essaie cette calculatrice interactive et si ça peut t'éviter la flemme</p>
+                <a href="calculatrice.html" class="btn">Essayer</a>
+            </div>
+            
+            <div class="tool-card">
+                <h3>Horloge interactive</h3>
+                <p>Essayez cette horloge un peu marrante</p>
+                <a href="horloge.html" class="btn">Essayer</a>
+            </div>
+            
+            <div class="tool-card">
+                <h3>Ami(e) ou amoureux</h3>
+                <p>Essayez ce test d'amour (à ne pas prendre à cœur)</p>
+                <a href="test.html" class="btn">Essayer</a>
+            </div>
+             <div class="tool-card">
+                <h3>quizz animé</h3>
+                <p>je sais que cest trop basique comme quizzz et sans defi mais c'est un quizz quand même</p>
+                <a href="guess.html" class="btn">Essayer</a>
+            </div>
+        </div>
+        
+        <div class="social-links">
+            <a href="https://wa.me/243842471408" class="social-link whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            <a href="https://www.facebook.com/arminackerman101" class="social-link facebook"><i class="fab fa-facebook-f"></i> Facebook</a>
+            <a href="https://www.instagram.com/rudeusjonhs?igsh=MWJkeDdhanJyenE4MA==" class="social-link instagram"><i class="fab fa-instagram"></i> Instagram</a>
+            <a href="https://t.me/rudeusackerman" class="social-link telegram"><i class="fab fa-telegram"></i> Telegram</a>
+        </div>
+    </div>
+    
+    <footer id="footer">
+        <div class="footer-text">
+            <span class="text-part">htag</span>
+            <span class="text-part">vacances</span>
+            <span class="text-part">de</span>
+            <span class="text-part">merde</span>
+            <span class="emoji">🤧</span>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animation du hero
+            setTimeout(() => {
+                document.querySelector('.hero').classList.add('visible');
+            }, 300);
+
+            // Animation des cartes outils
+            const cards = document.querySelectorAll('.tool-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('visible');
+                }, 500 + index * 200);
+            });
+
+            // Animation du footer
+            const textParts = document.querySelectorAll('.text-part');
+            textParts.forEach((part, index) => {
+                setTimeout(() => {
+                    part.style.opacity = '1';
+                    part.style.transform = 'translateY(0)';
+                    part.style.filter = 'blur(0)';
+                }, 300 * index);
+            });
+            
+            setTimeout(() => {
+                const emoji = document.querySelector('.emoji');
+                emoji.style.opacity = '1';
+                emoji.style.transform = 'scale(1.2) rotate(15deg)';
+                
+                // Animation permanente de l'emoji
+                setInterval(() => {
+                    emoji.style.transform = 'scale(1.1) rotate(-5deg)';
+                    setTimeout(() => {
+                        emoji.style.transform = 'scale(1.1) rotate(5deg)';
+                    }, 1000);
+                }, 2000);
+            }, 1500);
+
+            // Animation au scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.tool-card, .hero').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

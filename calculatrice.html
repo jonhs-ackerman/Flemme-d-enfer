@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumCalc | Design Better Stack</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #3b82f6, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 320px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .calculator {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+        
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 15s linear infinite;
+        }
+        
+        .display {
+            padding: 20px 15px;
+            text-align: right;
+            position: relative;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            min-height: 110px;
+        }
+        
+        .history {
+            min-height: 24px;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            min-height: 25px;
+        }
+        
+        .current-input {
+            font-size: 2.8rem;
+            font-weight: 300;
+            min-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+        
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .key {
+            background: rgba(30, 41, 59, 0.8);
+            border: none;
+            border-radius: 14px;
+            color: #e2e8f0;
+            font-size: 1.4rem;
+            font-weight: 500;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+        
+        .key::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .key:hover::before {
+            opacity: 1;
+        }
+        
+        .key:active {
+            transform: translateY(2px) scale(0.98);
+        }
+        
+        .key.operator {
+            background: rgba(79, 70, 229, 0.2);
+            color: #818cf8;
+        }
+        
+        .key.function {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            font-size: 1.2rem;
+        }
+        
+        .key.equals {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+        }
+        
+        .key.clear {
+            background: rgba(220, 38, 38, 0.2);
+            color: #f87171;
+        }
+        
+        .key.zero {
+            grid-column: span 2;
+            aspect-ratio: 2/1;
+        }
+        
+        .key:hover {
+            background: rgba(51, 65, 85, 0.8);
+            transform: translateY(-3px);
+        }
+        
+        .key.operator:hover {
+            background: rgba(79, 70, 229, 0.3);
+        }
+        
+        .key.function:hover {
+            background: rgba(124, 58, 237, 0.3);
+        }
+        
+        .key.equals:hover {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            transform: translateY(-3px);
+        }
+        
+        .key.clear:hover {
+            background: rgba(220, 38, 38, 0.3);
+        }
+        
+        .theme-toggle {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            border-radius: 50px;
+            padding: 10px 20px;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            outline: none;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(30, 41, 59, 1);
+            color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes calculatePulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(99, 102, 241, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .current-input {
+                font-size: 2.2rem;
+            }
+            
+            .key {
+                font-size: 1.2rem;
+            }
+            
+            .keypad {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">calculacul</h1>
+            <p class="subtitle">step by step</p>
+        </div>
+        
+        <div class="calculator">
+            <div class="display">
+                <div class="history" id="history"></div>
+                <div class="current-input" id="currentInput">0</div>
+            </div>
+            
+            <div class="keypad">
+                <button class="key clear" data-value="AC">AC</button>
+                <button class="key function" data-value="del">⌫</button>
+                <button class="key function" data-value="%">%</button>
+                <button class="key operator" data-value="/">÷</button>
+                
+                <button class="key" data-value="7">7</button>
+                <button class="key" data-value="8">8</button>
+                <button class="key" data-value="9">9</button>
+                <button class="key operator" data-value="*">×</button>
+                
+                <button class="key" data-value="4">4</button>
+                <button class="key" data-value="5">5</button>
+                <button class="key" data-value="6">6</button>
+                <button class="key operator" data-value="-">−</button>
+                
+                <button class="key" data-value="1">1</button>
+                <button class="key" data-value="2">2</button>
+                <button class="key" data-value="3">3</button>
+                <button class="key operator" data-value="+">+</button>
+                
+                <button class="key zero" data-value="0">0</button>
+                <button class="key" data-value=".">.</button>
+                <button class="key equals" data-value="=">=</button>
+            </div>
+        </div>
+        
+        <div class="theme-toggle" id="themeToggle">
+            <i class="fas fa-palette"></i>
+            <span>Changer de thème</span>
+        </div>
+    </div>
+
+    <script>
+        // Éléments DOM
+        const currentInputEl = document.getElementById('currentInput');
+        const historyEl = document.getElementById('history');
+        const keypadEl = document.querySelector('.keypad');
+        const themeToggleEl = document.getElementById('themeToggle');
+        
+        // Variables d'état
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let shouldResetInput = false;
+        let lastResult = null;
+        
+        // Thèmes disponibles
+        const themes = [
+            { 
+                name: 'Better Stack', 
+                bg: ['#0f172a', '#1e293b'], 
+                primary: '#3b82f6', 
+                secondary: '#6366f1',
+                displayBg: 'rgba(15, 23, 42, 0.7)',
+                keyBg: 'rgba(30, 41, 59, 0.8)'
+            },
+            { 
+                name: 'Solar Flare', 
+                bg: ['#1e1b4b', '#2e1065'], 
+                primary: '#f97316', 
+                secondary: '#f59e0b',
+                displayBg: 'rgba(30, 27, 75, 0.7)',
+                keyBg: 'rgba(46, 16, 101, 0.8)'
+            },
+            { 
+                name: 'Emerald', 
+                bg: ['#022c22', '#064e3b'], 
+                primary: '#10b981', 
+                secondary: '#34d399',
+                displayBg: 'rgba(2, 44, 34, 0.7)',
+                keyBg: 'rgba(6, 78, 59, 0.8)'
+            }
+        ];
+        
+        let currentThemeIndex = 0;
+        
+        // Mise à jour de l'affichage
+        function updateDisplay() {
+            currentInputEl.textContent = formatNumber(currentInput);
+            
+            // Animation d'affichage
+            currentInputEl.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                currentInputEl.style.transform = 'scale(1)';
+            }, 100);
+        }
+        
+        // Formatage des nombres pour l'affichage
+        function formatNumber(num) {
+            // Convertir en nombre pour vérifier si c'est NaN
+            const number = parseFloat(num);
+            if (isNaN(number)) return 'Erreur';
+            
+            // Formater avec séparateurs de milliers
+            return number.toLocaleString('fr-FR', {
+                maximumFractionDigits: 10
+            });
+        }
+        
+        // Ajoute une valeur à l'entrée actuelle
+        function appendValue(value) {
+            if (shouldResetInput) {
+                currentInput = '0';
+                shouldResetInput = false;
+            }
+            
+            // Gestion de la virgule décimale
+            if (value === '.' && currentInput.includes('.')) {
+                return;
+            }
+            
+            if (currentInput === '0' && value !== '.') {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            
+            updateDisplay();
+        }
+        
+        // Effacer l'entrée actuelle
+        function clearInput() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+            historyEl.textContent = '';
+        }
+        
+        // Effacer tout (All Clear)
+        function allClear() {
+            clearInput();
+            lastResult = null;
+        }
+        
+        // Supprimer le dernier caractère
+        function deleteLast() {
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+        }
+        
+        // Appliquer un pourcentage
+        function applyPercentage() {
+            const value = parseFloat(currentInput);
+            if (isNaN(value)) return;
+            
+            currentInput = (value / 100).toString();
+            updateDisplay();
+        }
+        
+        // Définir l'opération
+        function setOperation(op) {
+            if (operation !== null) {
+                calculate();
+            }
+            
+            previousInput = currentInput;
+            operation = op;
+            shouldResetInput = true;
+            
+            // Mettre à jour l'historique
+            historyEl.textContent = `${formatNumber(previousInput)} ${getOperationSymbol(op)}`;
+        }
+        
+        // Effectuer le calcul
+        function calculate() {
+            if (operation === null || shouldResetInput) return;
+            
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            if (isNaN(prev) || isNaN(current)) {
+                currentInput = 'Erreur';
+                updateDisplay();
+                return;
+            }
+            
+            let result;
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        currentInput = 'Erreur';
+                        updateDisplay();
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            // Animation spéciale pour le résultat
+            document.querySelector('.calculator').style.animation = 'calculatePulse 0.7s';
+            setTimeout(() => {
+                document.querySelector('.calculator').style.animation = '';
+            }, 700);
+            
+            // Mettre à jour l'historique
+            historyEl.textContent = `${formatNumber(previousInput)} ${getOperationSymbol(operation)} ${formatNumber(currentInput)} =`;
+            
+            currentInput = result.toString();
+            operation = null;
+            shouldResetInput = true;
+            lastResult = result;
+            
+            updateDisplay();
+        }
+        
+        // Obtenir le symbole de l'opération
+        function getOperationSymbol(op) {
+            switch (op) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return op;
+            }
+        }
+        
+        // Changer de thème
+        function changeTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            const theme = themes[currentThemeIndex];
+            
+            // Mettre à jour les couleurs
+            document.body.style.background = `linear-gradient(135deg, ${theme.bg[0]}, ${theme.bg[1]})`;
+            document.querySelector('.title').style.background = 
+                `linear-gradient(to right, ${theme.primary}, ${theme.secondary})`;
+            
+            document.querySelector('.display').style.background = theme.displayBg;
+            
+            // Mettre à jour les touches
+            document.querySelectorAll('.key').forEach(key => {
+                if (!key.classList.contains('operator') && 
+                    !key.classList.contains('function') && 
+                    !key.classList.contains('equals') && 
+                    !key.classList.contains('clear')) {
+                    key.style.background = theme.keyBg;
+                }
+            });
+            
+            // Animation de transition
+            document.body.style.transition = 'background 0.8s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 800);
+        }
+        
+        // Gestion des clics sur le clavier
+        keypadEl.addEventListener('click', (e) => {
+            if (e.target.classList.contains('key')) {
+                const value = e.target.getAttribute('data-value');
+                
+                switch (value) {
+                    case 'AC':
+                        allClear();
+                        break;
+                    case 'del':
+                        deleteLast();
+                        break;
+                    case '%':
+                        applyPercentage();
+                        break;
+                    case '=':
+                        calculate();
+                        break;
+                    case '+':
+                    case '-':
+                    case '*':
+                    case '/':
+                        setOperation(value);
+                        break;
+                    default:
+                        appendValue(value);
+                }
+                
+                // Animation de la touche
+                e.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 100);
+            }
+        });
+        
+        // Écouteur pour changer de thème
+        themeToggleEl.addEventListener('click', changeTheme);
+        
+        // Initialisation
+        updateDisplay();
+    </script>
+</body>
+</html>
